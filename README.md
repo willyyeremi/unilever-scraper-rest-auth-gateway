@@ -1,2 +1,2 @@
-# Unilever Scraper: Rest Gateway
+# Unilever Scraper: REST API Gateway
 
