@@ -1,2 +1,2 @@
-# Unilever Scraper: REST API Gateway
+# Unilever Scraper: REST API Authorization Gateway
 
