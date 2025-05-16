@@ -2,7 +2,16 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import declarative_base
 
 
+##############################
+# common used variable
+##############################
+
 base = declarative_base()
+
+
+##############################
+# table on schema: public
+##############################
 
 class users(base):
     __tablename__ = "users",

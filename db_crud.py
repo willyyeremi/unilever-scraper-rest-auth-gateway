@@ -1,12 +1,15 @@
 from sqlalchemy.orm import Session
 
-from db_connection import engine
 from db_object import users
 
 
+##############################
+# table public.users
+##############################
+
 def create_users(connection_engine, data):
     with Session(autocommit = False, autoflush = False, bind = connection_engine) as session:
-        new_data = data(
+        new_data = users(
                 username = data['username']
                 ,password_hash = data['password_hash']
                 ,password_salt = data['password_salt']
@@ -17,9 +20,5 @@ def create_users(connection_engine, data):
 
 def read_users(connection_engine, **kwargs):
     with Session(autocommit = False, autoflush = False, bind = connection_engine) as session:
-        result = session.query(users).filter_by(**kwargs)
+        result = session.query(users).filter_by(**kwargs).first()
     return result
-
-
-if __name__ == "__main__":
-    print(read_users(connection_engine = engine, id = 1))

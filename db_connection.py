@@ -1,6 +1,6 @@
 import json
 
-from sqlalchemy import URL, create_engine
+from sqlalchemy import URL
 
 
 driver_dict = {
@@ -21,6 +21,3 @@ def create_url(ordinal: int, database_product: str):
         ,database = data.get("database_name")
     )
     return url_object
-
-url = create_url(1, "postgresql")
-engine = create_engine(url)

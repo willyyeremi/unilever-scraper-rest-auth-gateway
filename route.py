@@ -1,12 +1,24 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_jwt
 import bcrypt
+from sqlalchemy import create_engine
 
-from db_connection import engine
+from db_connection import create_url
 from db_crud import read_users, create_users
 
 
+##############################
+# common used variable
+##############################
+
+url = create_url(ordinal = 1, database_product = "postgresql")
+engine = create_engine(url)
 auth_bp = Blueprint("auth", __name__, url_prefix = "/auth")
+
+
+##############################
+# routing function
+##############################
 
 @auth_bp.route("/register", methods = ["POST"])
 def register():
@@ -14,7 +26,7 @@ def register():
     data["password_salt"] = bcrypt.gensalt(12).decode('utf-8')
     data["password_hash"] = bcrypt.hashpw(data["password"].encode('utf-8'), data["password_salt"].encode('utf-8')).decode('utf-8')
     del data["password"]
-    user = read_users(engine, data["username"])
+    user = read_users(connection_engine = engine, username = data["username"])
     if user:
         return jsonify({"msg": "User already created"}), 409
     create_users(connection_engine = engine, data = data)
