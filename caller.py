@@ -1,35 +1,52 @@
 import requests
 
-BASE_URL = "http://localhost:5000/auth"
+BASE_URL = "http://localhost:5000"
 
 # 1. Register user
-def register(username, password):
-    response = requests.post(f"{BASE_URL}/register", json={
+def register(username, password, role):
+    response = requests.post(f"{BASE_URL}/auth/register", json={
         "username": username,
-        "password": password
+        "password": password,
+        "role": role
     })
     print("Register:", response.json())
 
 # 2. Login user
 def login(username, password):
-    response = requests.post(f"{BASE_URL}/login", json={
+    response = requests.post(f"{BASE_URL}/auth/login", json={
         "username": username,
         "password": password
     })
     print("Login:", response.json())
-    return response.json().get("access_token")
+    return response.json()
 
-# 3. Access protected endpoint
-def access_protected(token):
+# 3. Refresh token
+def refresh(old_token):
+    headers = {"Authorization": f"Bearer {old_token}"}
+    response = requests.post(f"{BASE_URL}/auth/refresh", headers=headers)
+    print("Refresh:", response.json())
+
+# 4. Access protected endpoint
+def access_protected(token, page, limit, **kwargs):
     headers = {"Authorization": f"Bearer {token}"}
-    response = requests.get(f"{BASE_URL}/protected", headers=headers)
-    print("Protected:", response.json())
+    params = {
+            "page": page,
+            "limit": limit
+        }
+    params.update(kwargs)
+    response = requests.get(f"{BASE_URL}/data/raw-scrap-data",params = params, headers = headers)
+    response.raise_for_status()
+    print("Response:", response.json())
 
 if __name__ == "__main__":
-    username = "user1"
-    password = "secret123"
+    username = "admin"
+    password = "admin"
+    role = "admin"
 
-    register(username, password)
+    register(username, password, role)
     token = login(username, password)
     if token:
-        access_protected(token)
+        access_token = token.get("access_token")
+        refresh_token = token.get("refresh_token")
+        refresh(refresh_token)
+        access_protected(token = access_token, page = 1, limit = 5, id = 1)

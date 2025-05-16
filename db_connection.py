@@ -3,9 +3,18 @@ import json
 from sqlalchemy import URL
 
 
+##############################
+# common used variable
+##############################
+
 driver_dict = {
     "postgresql": "psycopg2"
 }
+
+
+##############################
+# main function
+##############################
 
 def create_url(ordinal: int, database_product: str):
     driver = driver_dict[database_product]
