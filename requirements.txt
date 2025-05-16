@@ -1,0 +1,7 @@
+Flask
+Flask-JWT-Extended
+python-dotenv
+requests
+sqlalchemy
+psycopg2
+bcrypt
