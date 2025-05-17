@@ -4,6 +4,17 @@ from sqlalchemy.orm import Session
 from db_object import users, roles
 from db_connection import create_url
 
+
+##############################
+# table public.users
+##############################
+
+def read_roles(connection_engine, **kwargs):
+    with Session(autocommit = False, autoflush = False, bind = connection_engine) as session:
+        result = session.query(roles).filter_by(**kwargs).first()
+    return result
+
+
 ##############################
 # table public.users
 ##############################
@@ -30,16 +41,6 @@ def update_users(connection_engine, written_username, **kwargs):
         stmt = update(users).where(users.username == written_username).values(**kwargs)
         session.execute(stmt)
         session.commit()
-
-
-##############################
-# table public.users
-##############################
-
-def read_roles(connection_engine, **kwargs):
-    with Session(autocommit = False, autoflush = False, bind = connection_engine) as session:
-        result = session.query(roles).filter_by(**kwargs).first()
-    return result
 
 
 if __name__ == "__main__":
