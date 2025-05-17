@@ -7,7 +7,7 @@ def register(username, password, role):
     response = requests.post(f"{BASE_URL}/auth/register", json={
         "username": username,
         "password": password,
-        "role": role
+        "roles": role
     })
     print("Register:", response.json())
 
@@ -20,13 +20,25 @@ def login(username, password):
     print("Login:", response.json())
     return response.json()
 
-# 3. Refresh token
+# 3. Update token
+def update(access_token, username, password, update_data):
+    json_body = {
+        "username": username,
+        "password": password
+    }
+    json_body.update(update_data)
+    headers = {"Authorization": f"Bearer {access_token}"}
+    response = requests.post(f"{BASE_URL}/auth/update", headers = headers, json = json_body)
+    print("Update:", response.json())
+    return response.json()
+
+# 4. Refresh token
 def refresh(old_token):
     headers = {"Authorization": f"Bearer {old_token}"}
     response = requests.post(f"{BASE_URL}/auth/refresh", headers=headers)
     print("Refresh:", response.json())
 
-# 4. Access protected endpoint
+# 5. Access protected endpoint
 def access_protected(token, page, limit, **kwargs):
     headers = {"Authorization": f"Bearer {token}"}
     params = {
@@ -42,9 +54,19 @@ if __name__ == "__main__":
     username = "admin"
     password = "admin"
     role = "admin"
+    update_data_1 = {
+        "username_update": "admin_update",
+        "is_active_update": "0"
+    }
+    update_data_2 = {
+        "password_update": "admin_update",
+        "is_active_update": "1"
+    }
 
     register(username, password, role)
     token = login(username, password)
+    token = update(token.get("access_token"), username, password, update_data_1)
+    token = update(token.get("access_token"), username, password, update_data_2)
     if token:
         access_token = token.get("access_token")
         refresh_token = token.get("refresh_token")
