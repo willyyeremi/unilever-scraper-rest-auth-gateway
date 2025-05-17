@@ -2,7 +2,7 @@ from flask import Flask
 from flask_jwt_extended import JWTManager
 
 from config import Config
-from route import auth_bp, forward_bp
+from routes import auth_bp, forward_bp
 
 
 app = Flask(__name__)
