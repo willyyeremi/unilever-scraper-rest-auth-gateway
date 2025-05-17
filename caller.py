@@ -1,17 +1,17 @@
 import requests
 
+
 BASE_URL = "http://localhost:5000"
 
-# 1. Register user
+
 def register(username, password, role):
     response = requests.post(f"{BASE_URL}/auth/register", json={
         "username": username,
         "password": password,
-        "role": role
+        "roles": role
     })
     print("Register:", response.json())
 
-# 2. Login user
 def login(username, password):
     response = requests.post(f"{BASE_URL}/auth/login", json={
         "username": username,
@@ -20,33 +20,88 @@ def login(username, password):
     print("Login:", response.json())
     return response.json()
 
-# 3. Refresh token
+def update(access_token, username, password, update_data):
+    json_body = {
+        "username": username,
+        "password": password
+    }
+    json_body.update(update_data)
+    headers = {"Authorization": f"Bearer {access_token}"}
+    response = requests.post(f"{BASE_URL}/auth/update", headers = headers, json = json_body)
+    print("Update:", response.json())
+    return response.json()
+
 def refresh(old_token):
     headers = {"Authorization": f"Bearer {old_token}"}
     response = requests.post(f"{BASE_URL}/auth/refresh", headers=headers)
     print("Refresh:", response.json())
 
-# 4. Access protected endpoint
-def access_protected(token, page, limit, **kwargs):
+def read_data(token, page, limit, filters):
     headers = {"Authorization": f"Bearer {token}"}
+    headers["X-API-Version"] = "v1"
     params = {
             "page": page,
             "limit": limit
         }
-    params.update(kwargs)
+    params.update(filters)
     response = requests.get(f"{BASE_URL}/data/raw-scrap-data",params = params, headers = headers)
     response.raise_for_status()
     print("Response:", response.json())
+
+def create_data(token, data):
+    headers = {"Authorization": f"Bearer {token}"}
+    headers["X-API-Version"] = "v1"
+    headers["Content-Type"]= "application/json"
+    response = requests.post(
+        f"{BASE_URL}/data/raw-scrap-data",
+        headers = headers,
+        json = data,
+    )
+    response.raise_for_status()
+    print("Response:", response.json())
+
+def delete_data(token, filters):
+    headers = {"Authorization": f"Bearer {token}"}
+    headers["X-API-Version"] = "v1"
+    params = filters
+    response = requests.delete(f"{BASE_URL}/data/raw-scrap-data",params = params, headers = headers)
+    response.raise_for_status()
+    print("Response:", response.json())
+
 
 if __name__ == "__main__":
     username = "admin"
     password = "admin"
     role = "admin"
-
-    register(username, password, role)
+    update_data_1 = {
+        "username_update": "admin_update",
+        "is_active_update": "0"
+    }
+    update_data_2 = {
+        "password_update": "admin_update",
+        "is_active_update": "1"
+    }
+    # register(username, password, role)
     token = login(username, password)
+    # token = update(token.get("access_token"), username, password, update_data_1)
+    # token = update(token.get("access_token"), username, password, update_data_2)
     if token:
         access_token = token.get("access_token")
         refresh_token = token.get("refresh_token")
         refresh(refresh_token)
-        access_protected(token = access_token, page = 1, limit = 5, id = 1)
+        # sample_read_filters = {
+        #     "id": 10
+        # }   
+        # read_data(token = access_token, page = 1, limit = 5, filters = sample_read_filters)
+        # sample_insert_data = {
+        #     "name": "bla-bla-bla",
+        #     "price": 200000,
+        #     "platform": "tokopedia",
+        #     "createdate": "2025-05-17"
+        # }
+        # create_data(token = access_token, data = sample_insert_data)
+        sample_delete_data = {
+            "id": 10
+        }
+        delete_data(token = access_token, filters = sample_delete_data)
+        
