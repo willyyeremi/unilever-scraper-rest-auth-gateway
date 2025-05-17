@@ -1,4 +1,4 @@
-# Unilever Scraper: REST API Gateway
+# Unilever Scraper: Auth Gateway
 This project is for authenticating users that want to acces main data.
 
 ## Precaution
