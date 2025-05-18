@@ -43,8 +43,14 @@ def read_data(token, page, limit, filters):
             "page": page,
             "limit": limit
         }
-    params.update(filters)
-    response = requests.get(f"{BASE_URL}/data/raw-scrap-data",params = params, headers = headers)
+    json_body = {
+        "filters": filters
+    }
+    response = requests.get(
+        f"{BASE_URL}/data/raw-scrap-data",
+        params = params, 
+        headers = headers,
+        json = json_body)
     response.raise_for_status()
     print("Response:", response.json())
 
@@ -88,11 +94,26 @@ if __name__ == "__main__":
     if token:
         access_token = token.get("access_token")
         refresh_token = token.get("refresh_token")
-        refresh(refresh_token)
-        # sample_read_filters = {
-        #     "id": 10
-        # }   
-        # read_data(token = access_token, page = 1, limit = 5, filters = sample_read_filters)
+        # refresh(refresh_token)
+        sample_read_filters = {
+            "and": {
+                "name": {
+                    "like": ["%Sampo%", "%Sabun%"]
+                },
+                "and" : {
+                    "price_gte": 100000,
+                    "price_lte": 500000,
+                },
+                "or": {
+                    "originalprice_gt": 10000,
+                    "discountpercentage_gte": 5.0,
+                    "platform": {
+                        "in": ["tokopedia", "blibli"]
+                    },
+                },
+            },
+        }  
+        read_data(token = access_token, page = 1, limit = 5, filters = sample_read_filters)
         # sample_insert_data = {
         #     "name": "bla-bla-bla",
         #     "price": 200000,
@@ -100,8 +121,8 @@ if __name__ == "__main__":
         #     "createdate": "2025-05-17"
         # }
         # create_data(token = access_token, data = sample_insert_data)
-        sample_delete_data = {
-            "id": 10
-        }
-        delete_data(token = access_token, filters = sample_delete_data)
+        # sample_delete_data = {
+        #     "id": 10
+        # }
+        # delete_data(token = access_token, filters = sample_delete_data)
         
