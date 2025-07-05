@@ -15,7 +15,7 @@ services:
     working_dir: /home/project_home/project_workdir
     command: >
       bash -c "
-      python main.py
+      gunicorn --bind 0.0.0.0:5000 main:app
       "
     networks:
       - shared-network
