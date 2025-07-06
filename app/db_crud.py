@@ -1,7 +1,7 @@
 from sqlalchemy import update, create_engine
 from sqlalchemy.orm import Session
 
-from db_object import users, roles
+from db_object import tr_users, ms_roles
 from db_connection import create_url
 
 
@@ -9,9 +9,9 @@ from db_connection import create_url
 # table public.users
 ##############################
 
-def read_roles(connection_engine, **kwargs):
+def read_ms_roles(connection_engine, **kwargs):
     with Session(autocommit = False, autoflush = False, bind = connection_engine) as session:
-        result = session.query(roles).filter_by(**kwargs).first()
+        result = session.query(ms_roles).filter_by(**kwargs).first()
     return result
 
 
@@ -19,9 +19,9 @@ def read_roles(connection_engine, **kwargs):
 # table public.users
 ##############################
 
-def create_users(connection_engine, data):
+def create_tr_users(connection_engine, data):
     with Session(autocommit = False, autoflush = False, bind = connection_engine) as session:
-        new_data = users(
+        new_data = tr_users(
                 username = data['username']
                 ,password_hash = data['password_hash']
                 ,password_salt = data['password_salt']
@@ -31,14 +31,14 @@ def create_users(connection_engine, data):
         session.add(new_data)
         session.commit()
 
-def read_users(connection_engine, **kwargs):
+def read_tr_users(connection_engine, **kwargs):
     with Session(autocommit = False, autoflush = False, bind = connection_engine) as session:
-        result = session.query(users).filter_by(**kwargs).first()
+        result = session.query(tr_users).filter_by(**kwargs).first()
     return result
 
-def update_users(connection_engine, written_username, **kwargs):
+def update_tr_users(connection_engine, written_username, **kwargs):
     with Session(autocommit = False, autoflush = False, bind = connection_engine) as session:
-        stmt = update(users).where(users.username == written_username).values(**kwargs)
+        stmt = update(tr_users).where(tr_users.username == written_username).values(**kwargs)
         session.execute(stmt)
         session.commit()
 

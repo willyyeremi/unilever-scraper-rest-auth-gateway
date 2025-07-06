@@ -5,7 +5,7 @@ import bcrypt
 from sqlalchemy import create_engine
 
 from db_connection import create_url
-from db_crud import create_users, read_users, update_users, read_roles
+from db_crud import create_tr_users, read_tr_users, update_tr_users, read_ms_roles
 
 
 ##############################
@@ -29,10 +29,10 @@ forward_bp = Blueprint("forward", __name__)
 def register():
     try:
         data = request.get_json()
-        user = read_users(connection_engine = engine, username = data["username"])
+        user = read_ms_roles(connection_engine = engine, username = data["username"])
         if user:
             return jsonify({"msg": "User already created"}), 409
-        roles = read_roles(connection_engine = engine, roles = data["roles"])
+        roles = read_ms_roles(connection_engine = engine, roles = data["roles"])
         if not roles:
             return jsonify({"msg": "Roles not exists"}), 409
         data["password_salt"] = bcrypt.gensalt(12).decode('utf-8')
@@ -40,7 +40,7 @@ def register():
         del data["password"]
         data["roles_id"] = roles.id
         del data["roles"]
-        create_users(connection_engine = engine, data = data)
+        create_tr_users(connection_engine = engine, data = data)
         additional_claims = {"roles_id": data["roles_id"]}
         access_token = create_access_token(identity = data["username"], additional_claims = additional_claims)
         refresh_token = create_refresh_token(identity = data["username"])
@@ -54,7 +54,7 @@ def login():
         data = request.get_json()
         username = data.get("username")
         password = data.get("password")
-        user = read_users(connection_engine = engine, username = username)
+        user = read_tr_users(connection_engine = engine, username = username)
         if not user:
             return jsonify({"msg": "User not found"}), 401
         password_hash = bcrypt.hashpw(password.encode('utf-8'), user.password_salt.encode('utf-8')).decode('utf-8')
@@ -81,13 +81,13 @@ def update():
         new_data = {}
         if data.get("username_update"):
             username_update = data.get("username_update")
-            user = read_users(connection_engine = engine, username = username_update)
+            user = read_tr_users(connection_engine = engine, username = username_update)
             if user:
                 return jsonify({"msg": "Username is exist, choose another one"}), 401
             new_data["username"] = username_update
         if data.get("password_update"):
             password_update = data.get("password_update")
-            user = read_users(connection_engine = engine, username = username)
+            user = read_tr_users(connection_engine = engine, username = username)
             password_hash = bcrypt.hashpw(password.encode('utf-8'), user.password_salt.encode('utf-8')).decode('utf-8')
             if user.password_hash != password_hash:
                 return jsonify({"msg": "Invalid old password"}), 401
@@ -95,7 +95,7 @@ def update():
             new_data["password_hash"] = bcrypt.hashpw(password_update.encode('utf-8'), new_data["password_salt"].encode('utf-8')).decode('utf-8')
         if data.get("is_active_update"):
             new_data["is_active"] = data.get("is_active_update")
-        update_users(connection_engine = engine, written_username = username, **new_data)
+        update_tr_users(connection_engine = engine, written_username = username, **new_data)
         additional_claims = {"roles_id": f"{roles_id}"}
         access_token = create_access_token(identity = username, additional_claims = additional_claims)
         refresh_token = create_refresh_token(identity = username)
@@ -108,7 +108,7 @@ def update():
 def refresh():
     try:
         identity = get_jwt_identity()
-        user = read_users(connection_engine = engine, username = identity)
+        user = read_tr_users(connection_engine = engine, username = identity)
         if not user:
             return jsonify({"msg": "User not found"}), 401
         additional_claims = {"roles_id": user.roles_id}

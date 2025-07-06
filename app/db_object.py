@@ -13,16 +13,16 @@ base = declarative_base()
 # table on schema: public
 ##############################
 
-class roles(base):
-    __tablename__ = "roles"
-    __table_args__ = {'schema': 'public'}
+class ms_roles(base):
+    __tablename__ = "ms_roles"
+    __table_args__ = {'schema': 'main'}
     id = Column(Integer, primary_key = True)
     roles = Column(String)
     is_active = Column(Integer)
 
-class users(base):
-    __tablename__ = "users"
-    __table_args__ = {'schema': 'public'}
+class tr_users(base):
+    __tablename__ = "tr_users"
+    __table_args__ = {'schema': 'main'}
     id = Column(Integer, primary_key = True)
     username = Column(String)
     password_hash = Column(String)
